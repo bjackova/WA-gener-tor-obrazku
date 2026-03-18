@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generátor obrázků</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    background: #0a0a1a;
+    color: #e0e0e0;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    padding: 24px;
+  }
+  .container { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.5px; margin-bottom: 4px; }
+  .subtitle { color: #888; margin-bottom: 24px; font-size: 14px; }
+  .canvas-wrap {
+    border-radius: 12px; overflow: hidden; border: 1px solid #222;
+    margin-bottom: 24px; box-shadow: 0 8px 32px rgba(0,0,255,0.08);
+  }
+  .canvas-wrap canvas { width: 100%; height: auto; display: block; }
+  label {
+    display: block; font-size: 12px; font-weight: 600; color: #999;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
+  }
+  input[type="text"] {
+    width: 100%; padding: 10px 14px; background: #141428;
+    border: 1px solid #2a2a4a; border-radius: 8px; color: #fff;
+    font-size: 16px; outline: none; margin-bottom: 20px;
+  }
+  input[type="text"]:focus { border-color: #3366ff; }
+  input[type="range"] { width: 100%; accent-color: #3366ff; height: 6px; cursor: pointer; margin-bottom: 20px; }
+  .toggle-row { display: flex; gap: 10px; margin-bottom: 24px; }
+  .toggle-btn {
+    flex: 1; padding: 12px; border-radius: 10px; cursor: pointer;
+    font-size: 14px; font-weight: 600; transition: transform 0.15s, box-shadow 0.15s;
+    text-align: center;
+  }
+  .toggle-btn:hover { transform: scale(1.03); }
+  .toggle-btn.active { box-shadow: 0 0 0 3px #3366ff; }
+  .download-btn {
+    width: 100%; padding: 14px 0;
+    background: linear-gradient(135deg, #0044ff, #0066ff);
+    color: #fff; border: none; border-radius: 10px;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    letter-spacing: 0.5px; transition: opacity 0.2s;
+  }
+  .download-btn:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useRef, useEffect, useCallback } = React;
+
+function App() {
+  const [text, setText] = useState("OČR");
+  const [theme, setTheme] = useState("blue");
+  const [fontSize, setFontSize] = useState(220);
+  const canvasRef = useRef(null);
+
+  const bg = theme === "blue" ? "#0000FF" : "#FFFFFF";
+  const fg = theme === "blue" ? "#FFFFFF" : "#0000FF";
+
+  const drawCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    canvas.width = 1024;
+    canvas.height = 768;
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, 1024, 768);
+    ctx.fillStyle = fg;
+    ctx.font = fontSize + 'px "Times New Roman", Georgia, serif';
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, 512, 384);
+  }, [text, bg, fg, fontSize]);
+
+  useEffect(() => { drawCanvas(); }, [drawCanvas]);
+
+  const downloadImage = () => {
+    drawCanvas();
+    const link = document.createElement("a");
+    link.download = (text || "image") + ".jpg";
+    link.href = canvasRef.current.toDataURL("image/jpeg", 0.87);
+    link.click();
+  };
+
+  return (
+    <div className="container">
+      <h1>Generátor obrázků</h1>
+      <p className="subtitle">Vytvořte obrázek s vlastním textem • 1024×768 px • JPEG</p>
+
+      <div className="canvas-wrap">
+        <canvas ref={canvasRef} width={1024} height={768} />
+      </div>
+
+      <label>Text</label>
+      <input type="text" value={text} onChange={e => setText(e.target.value)} placeholder="Zadejte text..." />
+
+      <label>Velikost písma: {fontSize}px</label>
+      <input type="range" min={40} max={400} value={fontSize} onChange={e => setFontSize(Number(e.target.value))} />
+
+      <label>Varianta</label>
+      <div className="toggle-row">
+        <button className={"toggle-btn" + (theme === "blue" ? " active" : "")}
+          style={{ background: "#0000FF", color: "#fff", border: "2px solid transparent" }}
+          onClick={() => setTheme("blue")}>
+          Modré pozadí / bílý text
+        </button>
+        <button className={"toggle-btn" + (theme === "white" ? " active" : "")}
+          style={{ background: "#fff", color: "#0000FF", border: "2px solid #444" }}
+          onClick={() => setTheme("white")}>
+          Bílé pozadí / modrý text
+        </button>
+      </div>
+
+      <button className="download-btn" onClick={downloadImage}>⬇ Stáhnout jako JPEG</button>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
