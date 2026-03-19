@@ -87,7 +87,7 @@ function App() {
   const downloadImage = () => {
     drawCanvas();
     const link = document.createElement("a");
-    link.download = (text || "image") + ".jpg";
+    link.download = (text || "image") + ".png";
     link.href = canvasRef.current.toDataURL("image/png", 0.87);
     link.click();
   };
