@@ -88,14 +88,14 @@ function App() {
     drawCanvas();
     const link = document.createElement("a");
     link.download = (text || "image") + ".jpg";
-    link.href = canvasRef.current.toDataURL("image/jpeg", 0.87);
+    link.href = canvasRef.current.toDataURL("image/png", 0.87);
     link.click();
   };
 
   return (
     <div className="container">
       <h1>Generátor obrázků</h1>
-      <p className="subtitle">Vytvořte obrázek s vlastním textem • 1024×768 px • JPEG</p>
+      <p className="subtitle">Vytvořte obrázek s vlastním textem • 1024×768 px • PNG</p>
 
       <div className="canvas-wrap">
         <canvas ref={canvasRef} width={1024} height={768} />
@@ -121,7 +121,7 @@ function App() {
         </button>
       </div>
 
-      <button className="download-btn" onClick={downloadImage}>⬇ Stáhnout jako JPEG</button>
+      <button className="download-btn" onClick={downloadImage}>⬇ Stáhnout jako PNG</button>
     </div>
   );
 }
